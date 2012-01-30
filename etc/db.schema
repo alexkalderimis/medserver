@@ -1,0 +1,50 @@
+CREATE TABLE area (
+    id serial primary key,
+    name varchar(50));
+
+INSERT INTO area (name) VALUES ('respiratory');
+INSERT INTO area (name) VALUES ('dermatology');
+INSERT INTO area (name) VALUES ('reproductive');
+INSERT INTO area (name) VALUES ('ear-nose-and-throat');
+INSERT INTO area (name) VALUES ('neurology');
+INSERT INTO area (name) VALUES ('cardiac');
+
+CREATE TABLE patient (
+    id serial primary key,
+    dob date NOT NULL,
+    check (dob < now()), 
+    check (dob >= (now() - interval '120 years')),
+    gender varchar(6) check (gender in ('male', 'female')));
+
+CREATE TABLE institution (
+    id serial primary key,
+    name text NOT NULL);
+
+CREATE TABLE advisor (
+    id serial primary key,
+    name text NOT NULL,
+    profile text NOT NULL,
+    member_since timestamp default now(),
+    institution integer REFERENCES institution(id));
+
+CREATE TABLE complaint (
+    id serial primary key,
+    summary text,
+    created timestamp default now(),
+    pain_level integer,
+    check (pain_level >= 0), 
+    check (pain_level <= 10),
+    concern_level integer,
+    check (concern_level >= 0), 
+    check (concern_level <= 10),
+    patient integer REFERENCES patient(id),
+    area integer REFERENCES area(id));
+
+CREATE TABLE response (
+    id serial primary key,
+    advice text NOT NULL,
+    rating integer,
+    check (rating <= 5),
+    complaint integer REFERENCES complaint(id),
+    advisor integer REFERENCES advisor(id));
+
